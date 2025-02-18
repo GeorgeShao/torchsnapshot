@@ -57,12 +57,12 @@ async def test_s3_read_write_via_snapshot() -> None:
 
     tensor = torch.rand((_TENSOR_SZ,))
     app_state = {"state": torchsnapshot.StateDict(tensor=tensor)}
-    snapshot = await torchsnapshot.Snapshot.take(path=path, app_state=app_state)
+    snapshot = torchsnapshot.Snapshot.take(path=path, app_state=app_state)
 
     app_state["state"]["tensor"] = torch.rand((_TENSOR_SZ,))
     assert not torch.allclose(tensor, app_state["state"]["tensor"])
 
-    await snapshot.restore(app_state)
+    snapshot.restore(app_state)
     assert torch.allclose(tensor, app_state["state"]["tensor"])
 
 
