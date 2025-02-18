@@ -109,31 +109,3 @@ async def test_s3_ranged_read() -> None:
     assert read_io.buf.getvalue() == buf[100:200]
 
     await plugin.close()
-
-
-@pytest.mark.s3_integration_test
-@pytest.mark.skipif(os.environ.get("TORCHSNAPSHOT_ENABLE_AWS_TEST") is None, reason="")
-@pytest.mark.usefixtures("s3_health_check")
-async def test_s3_copy_large_file() -> None:
-    path = f"{_TEST_BUCKET}/test"
-    logger.info(path)
-    plugin = await S3StoragePlugin.create(root=path)
-    read_plugin = FSStoragePlugin(root="/Users/gshao/Downloads")
-    read_io = ReadIO(path="5gb.mp4")
-    
-    start_time = time.time()
-    await read_plugin.read(read_io=read_io)
-    end_time = time.time()
-    read_duration = end_time - start_time
-    
-    logger.info(f"Reading took {read_duration:.2f} seconds")
-    write_io = WriteIO(path="5gb-copy.mp4", buf=read_io.buf.getbuffer())
-    
-    start_time = time.time()
-    await plugin.write(write_io=write_io)
-    end_time = time.time()
-    write_duration = end_time - start_time
-    
-    logger.info(f"Writing took {write_duration:.2f} seconds")
-    
-    await plugin.close()
