@@ -14,7 +14,6 @@ import logging
 import os
 import random
 import uuid
-import time
 
 import pytest
 
